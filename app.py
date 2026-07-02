@@ -4,7 +4,6 @@ import re
 
 # ---------------- Gemini API ---------------- #
 
-
 API_KEY = st.secrets["GEMINI_API_KEY"]
 
 genai.configure(api_key=API_KEY)
@@ -37,7 +36,6 @@ if "difficulty" not in st.session_state:
 if "interview_started" not in st.session_state:
     st.session_state.interview_started = False
 
-# NEW
 if "asked_questions" not in st.session_state:
     st.session_state.asked_questions = []
 
@@ -77,7 +75,6 @@ difficulty = st.radio(
         "Hard"
     ]
 )
-
 # ---------------- Start Interview ---------------- #
 
 if st.button("🚀 Start Interview"):
@@ -108,10 +105,20 @@ Rules:
 
         with st.spinner("🤖 AI is generating your first interview question..."):
 
-            response = model.generate_content(prompt)
+            try:
 
-        st.session_state.question = response.text
-        st.session_state.asked_questions.append(response.text)
+                response = model.generate_content(prompt)
+
+                st.session_state.question = response.text
+                st.session_state.asked_questions.append(response.text)
+
+            except Exception:
+
+                st.error(
+                    "⚠️ AI service is busy or API quota exceeded.\n\nPlease wait 30-60 seconds and try again."
+                )
+                st.stop()
+
 # ---------------- Show Question ---------------- #
 
 if st.session_state.interview_started:
@@ -130,8 +137,7 @@ if st.session_state.interview_started:
         "✍️ Your Answer",
         key=f"answer_{st.session_state.question_count}"
     )
-
-    # ---------------- Submit Answer ---------------- #
+# ---------------- Submit Answer ---------------- #
 
     if st.button("📤 Submit Answer"):
 
@@ -169,9 +175,18 @@ Correct Answer:
 
             with st.spinner("🤖 AI is evaluating your answer..."):
 
-                evaluation = model.generate_content(eval_prompt)
+                try:
 
-            st.session_state.feedback = evaluation.text
+                    evaluation = model.generate_content(eval_prompt)
+
+                    st.session_state.feedback = evaluation.text
+
+                except Exception:
+
+                    st.error(
+                        "⚠️ AI service is busy or API quota exceeded.\n\nPlease wait 30-60 seconds and try again."
+                    )
+                    st.stop()
 
             # -------- Extract Score -------- #
 
@@ -179,7 +194,7 @@ Correct Answer:
 
             match = re.search(
                 r"Score:\s*(\d+)",
-                evaluation.text
+                st.session_state.feedback
             )
 
             if match:
@@ -218,27 +233,35 @@ Rules:
 
             with st.spinner("🤖 Generating next question..."):
 
-                response = model.generate_content(prompt)
+                try:
 
-            # यदि AI गलती से वही question दे दे
-            retry = 0
+                    response = model.generate_content(prompt)
 
-            while (
-                response.text in st.session_state.asked_questions
-                and retry < 3
-            ):
-                response = model.generate_content(prompt)
-                retry += 1
+                    retry = 0
 
-            st.session_state.question = response.text
-            st.session_state.asked_questions.append(response.text)
+                    while (
+                        response.text in st.session_state.asked_questions
+                        and retry < 3
+                    ):
+                        response = model.generate_content(prompt)
+                        retry += 1
 
-            st.session_state.feedback = ""
-            st.session_state.question_count += 1
+                    st.session_state.question = response.text
+                    st.session_state.asked_questions.append(response.text)
 
-            st.rerun()
+                    st.session_state.feedback = ""
+                    st.session_state.question_count += 1
 
-    # ---------------- Interview Completed ---------------- #
+                    st.rerun()
+
+                except Exception:
+
+                    st.error(
+                        "⚠️ AI service is busy or API quota exceeded.\n\nPlease wait 30-60 seconds and try again."
+                    )
+                    st.stop()
+
+    # ---------------- Final Report ---------------- #
 
     else:
 
