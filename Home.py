@@ -1,6 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 import re
+from PIL import Image
 
 # ---------------- Gemini API ---------------- #
 
@@ -46,8 +47,16 @@ st.set_page_config(
     page_icon="🎤",
     layout="centered"
 )
+logo = Image.open("assets/ag_logo.png")
 
-st.title("🎤 AI Interview Coach")
+col1, col2 = st.columns([1, 5])
+
+with col1:
+    st.image(logo, width=70)
+
+with col2:
+    st.title("🎤 AI Interview Coach")
+
 
 st.write("Practice technical interviews with AI and get instant feedback.")
 
@@ -318,4 +327,4 @@ Rules:
             st.rerun()
 
 st.divider()
-st.caption("Made with ❤️ by GROUP AK")
+st.caption("Developed by GROUP AG||MNNIT~Summer internship Project")
