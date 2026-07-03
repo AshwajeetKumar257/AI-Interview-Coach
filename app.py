@@ -3,7 +3,7 @@ import google.generativeai as genai
 import re
 from PIL import Image
 
-# ---------------- Gemini API ---------------- #
+#  AHD AI USING GEMINI  #
 
 API_KEY = st.secrets["GEMINI_API_KEY"]
 
@@ -40,26 +40,38 @@ if "interview_started" not in st.session_state:
 if "asked_questions" not in st.session_state:
     st.session_state.asked_questions = []
 
-# ---------------- UI ---------------- #
+
 
 st.set_page_config(
     page_title="AI Interview Coach",
     page_icon="🎤",
     layout="centered"
 )
-logo = Image.open("assets/ag_logo.png")
+with st.sidebar:
+    st.image("assets/ag_logo.png", width=80)
+    st.markdown("### AHD AI-COACH")
 
+    st.divider()
+    st.subheader("📊 Interview Reports")
+
+    if "reports" not in st.session_state:
+        st.session_state.reports = []
+
+    for report in st.session_state.reports:
+        st.write(f"👤 {report}")
+
+logo = Image.open("assets/ag_logo.png")
 col1, col2 = st.columns([1, 5])
 
 with col1:
-    st.image(logo, width=70)
+    st.image(logo, width=110)
 
 with col2:
     st.title("🎤 AI Interview Coach")
 
 
 st.write("Practice technical interviews with AI and get instant feedback.")
-
+st.success("👋 Welcome to AHD AI Interview Coach")
 st.divider()
 
 candidate_name = st.text_input(
@@ -84,7 +96,7 @@ difficulty = st.radio(
         "Hard"
     ]
 )
-# ---------------- Start Interview ---------------- #
+# Start Interview AHD USERS  #
 
 if st.button("🚀 Start Interview"):
 
@@ -128,8 +140,6 @@ Rules:
                 )
                 st.stop()
 
-# ---------------- Show Question ---------------- #
-
 if st.session_state.interview_started:
 
     st.success(f"Welcome {st.session_state.candidate_name}")
@@ -146,7 +156,6 @@ if st.session_state.interview_started:
         "✍️ Your Answer",
         key=f"answer_{st.session_state.question_count}"
     )
-# ---------------- Submit Answer ---------------- #
 
     if st.button("📤 Submit Answer"):
 
@@ -197,7 +206,7 @@ Correct Answer:
                     )
                     st.stop()
 
-            # -------- Extract Score -------- #
+            
 
             score = 0
 
@@ -210,7 +219,7 @@ Correct Answer:
                 score = int(match.group(1))
 
             st.session_state.scores.append(score)
-# ---------------- Feedback ---------------- #
+
 
 if st.session_state.feedback != "":
 
@@ -218,7 +227,7 @@ if st.session_state.feedback != "":
 
     st.write(st.session_state.feedback)
 
-    # ---------------- Next Question ---------------- #
+    
 
     if st.session_state.question_count < 5:
 
@@ -270,8 +279,7 @@ Rules:
                     )
                     st.stop()
 
-    # ---------------- Final Report ---------------- #
-
+    
     else:
 
         total = sum(st.session_state.scores)
@@ -280,7 +288,16 @@ Rules:
         st.success("🎉 Interview Completed!")
 
         st.balloons()
+        # Save report in sidebar
+        with st.sidebar:
+            st.divider()
+            st.subheader("📊 Interview Reports")
 
+            st.write(f"👤 Name: {st.session_state.candidate_name}")
+            st.write(f"💼 Role: {st.session_state.job_role}")
+            st.write(f"🎯 Difficulty: {st.session_state.difficulty}")
+            st.write(f"⭐ Score: {total}/50")
+            st.write(f"📈 Average: {average:.1f}/10")
         st.markdown("---")
 
         st.subheader("📈 Final Interview Report")
