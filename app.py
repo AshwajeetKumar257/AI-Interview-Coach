@@ -327,4 +327,4 @@ Rules:
             st.rerun()
 
 st.divider()
-st.caption("Developed by GROUP AG||MNNIT~Summer internship Project")
+st.caption("Developed by GROUP AHD||MNNIT~Summer internship Project")
